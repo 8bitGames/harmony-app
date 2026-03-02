@@ -1,19 +1,25 @@
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, UsersThree, Fire } from "@phosphor-icons/react/dist/ssr";
+import { Star, UsersThree, Fire, Eye, Newspaper, Sparkle } from "@phosphor-icons/react/dist/ssr";
+import { generateFortune, getZodiacEmoji, ZODIAC_ANIMALS } from "@/lib/fortune";
 
-const fortunePreview = {
-  zodiac: "용띠",
-  summary: "오늘은 새로운 인연을 만나기 좋은 날입니다",
-  luck: "★★★★☆",
-};
+function getToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
-const recommendedClubs = [
-  { id: "1", name: "서울 등산 모임", category: "등산", members: 45, coverEmoji: "⛰️" },
-  { id: "2", name: "골프 친구들", category: "골프", members: 32, coverEmoji: "⛳" },
-  { id: "3", name: "독서 클럽", category: "독서", members: 28, coverEmoji: "📚" },
+// Popular clubs (mock — would query by view count)
+const popularClubs = [
+  { id: "1", name: "서울 등산 모임", category: "등산", members: 45, coverEmoji: "⛰️", views: 320 },
+  { id: "2", name: "골프 친구들", category: "골프", members: 32, coverEmoji: "⛳", views: 280 },
+  { id: "3", name: "독서 클럽", category: "독서", members: 28, coverEmoji: "📚", views: 195 },
+];
+
+const recommendedInfos = [
+  { id: "1", title: "봄철 건강 관리 가이드", category: "건강", views: 520 },
+  { id: "2", title: "2024 정부 지원금 총정리", category: "정부지원", views: 1200 },
+  { id: "3", title: "시니어를 위한 스마트폰 활용법", category: "정보", views: 890 },
 ];
 
 const popularPosts = [
@@ -23,6 +29,11 @@ const popularPosts = [
 ];
 
 export default function HomePage() {
+  const today = getToday();
+  // Show a random zodiac fortune preview on home
+  const previewZodiac = ZODIAC_ANIMALS[new Date().getDay() % ZODIAC_ANIMALS.length];
+  const fortune = generateFortune(today, previewZodiac);
+
   return (
     <div className="space-y-6 p-4">
       {/* Header */}
@@ -31,44 +42,78 @@ export default function HomePage() {
         <p className="mt-1 text-base text-gray-500">오늘도 즐거운 하루 보내세요</p>
       </div>
 
-      {/* Fortune Preview */}
-      <Card className="bg-gradient-to-r from-purple-50 to-orange-50">
+      {/* Onboarding Banner for new users */}
+      <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200">
         <CardContent className="p-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
-              🐉
-            </div>
+            <Sparkle size={32} weight="fill" className="text-orange-400" />
             <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-base font-semibold text-gray-900">{fortunePreview.zodiac} 오늘의 운세</span>
-                <Star size={18} weight="fill" className="text-yellow-400" />
-              </div>
-              <p className="mt-1 text-base text-gray-600">{fortunePreview.summary}</p>
+              <p className="text-base font-semibold text-gray-900">하모니에 오신 것을 환영합니다!</p>
+              <p className="mt-1 text-sm text-gray-600">프로필을 완성하고 관심 클럽을 찾아보세요</p>
             </div>
+            <Link href="/mypage/edit">
+              <Button size="sm" variant="outline">시작하기</Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
 
-      {/* Recommended Clubs */}
+      {/* Fortune Preview — Real Data */}
+      <Link href="/fortune">
+        <Card className="bg-gradient-to-r from-purple-50 to-orange-50 hover:shadow-md transition-shadow">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
+                {getZodiacEmoji(fortune.zodiac)}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-semibold text-gray-900">{fortune.zodiac}띠 오늘의 운세</span>
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        weight={i < fortune.score ? "fill" : "regular"}
+                        className={i < fortune.score ? "text-yellow-400" : "text-gray-300"}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <p className="mt-1 text-sm text-gray-600 line-clamp-1">{fortune.general}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+
+      {/* Popular Clubs (by views) */}
       <section>
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <UsersThree size={24} className="text-orange-500" />
-            추천 클럽
+            <Fire size={24} className="text-red-500" />
+            인기 모임
           </h2>
           <Link href="/club" className="text-base text-orange-500 font-medium">
             전체보기
           </Link>
         </div>
         <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
-          {recommendedClubs.map((club) => (
+          {popularClubs.map((club) => (
             <Link key={club.id} href={`/club/${club.id}`} className="min-w-[160px]">
               <Card className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4 text-center">
                   <div className="text-4xl mb-2">{club.coverEmoji}</div>
                   <h3 className="text-base font-semibold text-gray-900 truncate">{club.name}</h3>
                   <Badge variant="secondary" className="mt-2">{club.category}</Badge>
-                  <p className="mt-2 text-sm text-gray-400">멤버 {club.members}명</p>
+                  <div className="mt-2 flex items-center justify-center gap-2 text-xs text-gray-400">
+                    <span className="flex items-center gap-0.5">
+                      <UsersThree size={12} /> {club.members}
+                    </span>
+                    <span className="flex items-center gap-0.5">
+                      <Eye size={12} /> {club.views}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
             </Link>
@@ -76,26 +121,62 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Popular Posts */}
+      {/* Recommended Info Content */}
       <section>
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <Fire size={24} className="text-red-500" />
-          인기 게시글
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <Newspaper size={24} className="text-blue-500" />
+            추천 정보
+          </h2>
+          <Link href="/info" className="text-base text-orange-500 font-medium">
+            전체보기
+          </Link>
+        </div>
+        <div className="mt-3 space-y-2">
+          {recommendedInfos.map((info) => (
+            <Link key={info.id} href={`/info/${info.id}`}>
+              <Card className="hover:shadow-sm transition-shadow mb-2">
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <Badge variant="outline" className="mb-1">{info.category}</Badge>
+                    <h3 className="text-base font-medium text-gray-900">{info.title}</h3>
+                  </div>
+                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                    <Eye size={14} /> {info.views}
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Popular Community Posts */}
+      <section>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            💬 커뮤니티
+          </h2>
+          <Link href="/community" className="text-base text-orange-500 font-medium">
+            전체보기
+          </Link>
+        </div>
         <div className="mt-3 space-y-3">
           {popularPosts.map((post) => (
-            <Card key={post.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <h3 className="text-base font-semibold text-gray-900">{post.title}</h3>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-sm text-gray-400">{post.author}</span>
-                  <div className="flex items-center gap-3 text-sm text-gray-400">
-                    <span>❤️ {post.likes}</span>
-                    <span>💬 {post.comments}</span>
+            <Link key={post.id} href={`/community/${post.id}`}>
+              <Card className="hover:shadow-md transition-shadow mb-2">
+                <CardContent className="p-4">
+                  <h3 className="text-base font-semibold text-gray-900">{post.title}</h3>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-sm text-gray-400">{post.author}</span>
+                    <div className="flex items-center gap-3 text-sm text-gray-400">
+                      <span>❤️ {post.likes}</span>
+                      <span>💬 {post.comments}</span>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </section>
