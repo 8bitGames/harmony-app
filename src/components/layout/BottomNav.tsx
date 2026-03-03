@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, UsersThree, MapPin, ChatsCircle, UserCircle, Info } from "@phosphor-icons/react";
+import { House, UsersThree, MapPin, ChatsCircle, UserCircle, MagnifyingGlass } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", label: "홈", icon: House },
   { href: "/club", label: "클럽", icon: UsersThree },
+  { href: "/search", label: "검색", icon: MagnifyingGlass },
   { href: "/map", label: "지도", icon: MapPin },
-  { href: "/info", label: "정보", icon: Info },
   { href: "/chat", label: "채팅", icon: ChatsCircle },
   { href: "/mypage", label: "마이", icon: UserCircle },
 ];

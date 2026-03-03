@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, UsersThree, Fire, Eye, Newspaper, Sparkle } from "@phosphor-icons/react/dist/ssr";
+import { Star, UsersThree, Fire, Eye, Newspaper, Sparkle, MagnifyingGlass, UserCirclePlus } from "@phosphor-icons/react/dist/ssr";
 import { generateFortune, getZodiacEmoji, ZODIAC_ANIMALS } from "@/lib/fortune";
 
 function getToday(): string {
@@ -28,6 +28,13 @@ const popularPosts = [
   { id: "3", title: "제주도 3박4일 여행 후기", author: "여행가", likes: 31, comments: 15 },
 ];
 
+// 개인화 추천 (mock — would come from /api/recommendations)
+const personalRecommendations = [
+  { id: "r1", name: "서울 등산 모임", category: "등산", reason: "관심 취미와 일치", members: 45 },
+  { id: "r2", name: "골프 친구들", category: "골프", reason: "같은 지역 · 인기 모임", members: 32 },
+  { id: "r3", name: "서울 독서 모임", category: "독서", reason: "비슷한 취미 회원들이 활동 중", members: 28 },
+];
+
 export default function HomePage() {
   const today = getToday();
   // Show a random zodiac fortune preview on home
@@ -37,9 +44,16 @@ export default function HomePage() {
   return (
     <div className="space-y-6 p-4">
       {/* Header */}
-      <div className="pt-2">
-        <h1 className="text-2xl font-bold text-gray-900">안녕하세요! 👋</h1>
-        <p className="mt-1 text-base text-gray-500">오늘도 즐거운 하루 보내세요</p>
+      <div className="flex items-center justify-between pt-2">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">안녕하세요! 👋</h1>
+          <p className="mt-1 text-base text-gray-500">오늘도 즐거운 하루 보내세요</p>
+        </div>
+        <Link href="/search">
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <MagnifyingGlass size={24} className="text-gray-600" />
+          </Button>
+        </Link>
       </div>
 
       {/* Onboarding Banner for new users */}
@@ -86,6 +100,42 @@ export default function HomePage() {
           </CardContent>
         </Card>
       </Link>
+
+      {/* Personalized Recommendations */}
+      <section>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <UserCirclePlus size={24} className="text-orange-500" />
+            나를 위한 추천
+          </h2>
+          <Link href="/club" className="text-base text-orange-500 font-medium">
+            더보기
+          </Link>
+        </div>
+        <div className="mt-3 space-y-2">
+          {personalRecommendations.map((rec) => (
+            <Link key={rec.id} href={`/club/${rec.id}`}>
+              <Card className="hover:shadow-md transition-shadow mb-2 border-orange-100">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-50 text-xl">
+                    {rec.category === "등산" ? "⛰️" : rec.category === "골프" ? "⛳" : "📚"}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-base font-semibold text-gray-900">{rec.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary" className="text-xs">{rec.category}</Badge>
+                      <span className="text-xs text-orange-500">{rec.reason}</span>
+                    </div>
+                  </div>
+                  <span className="flex items-center gap-0.5 text-xs text-gray-400">
+                    <UsersThree size={12} /> {rec.members}
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* Popular Clubs (by views) */}
       <section>
