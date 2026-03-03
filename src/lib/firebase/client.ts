@@ -32,5 +32,10 @@ export function getFirebaseDb(): Database {
   return database;
 }
 
-// Keep backward compat export but lazy
-export const firebaseDb = typeof window !== "undefined" ? getFirebaseDb() : (null as unknown as Database);
+// Lazy proxy: backward compat export without eager init
+// Access triggers getFirebaseDb() on first property read
+export const firebaseDb: Database = new Proxy({} as Database, {
+  get(_target, prop) {
+    return Reflect.get(getFirebaseDb(), prop);
+  },
+});

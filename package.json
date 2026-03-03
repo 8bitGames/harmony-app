@@ -10,7 +10,10 @@
     "format": "biome format --write src/",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:setup": "bunx supabase db push",
+    "deploy": "npx vercel --prod",
+    "deploy:preview": "npx vercel"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
